@@ -17,16 +17,19 @@ datasource db {
 model User {
 	id            String    @id @default(uuid()) // Primary Key
 	email         String    @unique
+	password      String
 	nickname      String
 	
 	followedBy    Friendship[] @relation("following")
 	following     Friendship[] @relation("follower")
 	
-	groups        GroupMember[]
-	records       ReadingRecord[]
-	sentences     Sentence[]
-	comments      Comment[]
-	reactions     RecordReaction[]
+	groups            GroupMember[]
+	records           ReadingRecord[]
+	sentences         Sentence[]
+	sentenceComments  Comment[]
+	recordComments    RecordComment[]
+	likes             Like[]
+	reactions         RecordReaction[]
 }
 
 // Junction Table
@@ -56,64 +59,66 @@ model Book {
 
 /* Group */
 model Group {
-	id          String      @id @default(uuid()) // Primary Key
-	name        String
-	startDate   DateTime
-	goalDate    DateTime?
+	id           String      @id @default(uuid()) // Primary Key
+	name         String
+	startDate    DateTime
+	goalDate     DateTime?
 	
-	bookIsbn    String
-	book        Book        @relation(fields: [bookIsbn], references: [isbn])
+	bookIsbn     String
+	book         Book        @relation(fields: [bookIsbn], references: [isbn])
 	
-	members     GroupMember[]
-	sentences   Sentence[]
-	records     ReadingRecord[]
+	members      GroupMember[]
+	sentences    Sentence[]
+	records      ReadingRecord[]
 	
-	createdAt     DateTime @default(now())
+	createdAt    DateTime @default(now())
 }
 
 // Junction Table
 model GroupMember {
-	userId      String
-	groupId     String
+	userId        String
+	groupId       String
 	
-	user        User        @relation(fields: [userId], references: [id])
-	group       Group       @relation(fields: [groupId], references: [id])
+	user          User        @relation(fields: [userId], references: [id])
+	group         Group       @relation(fields: [groupId], references: [id])
 	
 	// Reading Progress
-	lastReadPage Int       @default(0)
-	isFinished   Boolean   @default(false)
+	lastReadPage  Int       @default(0)
+	isFinished    Boolean   @default(false)
 	
 	@@id([userId, groupId]) // Primary Key
 }
 
 /* Reading Record (for gallery & Calendar) */
 model ReadingRecord {
-	id            String    @id @default(uuid()) // Primary Key
-	readDate      DateTime
-	startPage     Int
-	endPage       Int
-	comment       String?
-	imageUrl      String
+	id              String    @id @default(uuid()) // Primary Key
+	readDate        DateTime
+	startPage       Int
+	endPage         Int
+	comment         String?
+	imageUrl        String
 	
-	userId        String
-	bookIsbn      String
-	groupId       String
+	userId          String
+	bookIsbn        String
+	groupId         String
 	
-	user          User     @relation(fields: [userId], references: [id])
-	book          Book     @relation(fields: [bookIsbn], references: [isbn])
-	group         Group    @relation(fields: [groupId], references: [id])
+	user            User     @relation(fields: [userId], references: [id])
+	book            Book     @relation(fields: [bookIsbn], references: [isbn])
+	group           Group    @relation(fields: [groupId], references: [id])
 	
-	reactions     RecordReaction[]
+	reactions       RecordReaction[]
+	recordComments  RecordComment[]
+	likes           Like[]
 
-	createdAt     DateTime @default(now())
+	createdAt       DateTime @default(now())
 }
 
 /* Sentence chosen by user */
 model Sentence {
-	id            String    @id @default(uuid())
+	id            String    @id @default(uuid()) // Primary Key
 	content       String    @db.Text
-  pageNo        Int
-  thought       String?   @db.Text
+    pageNo        Int
+    thought       String?   @db.Text
 
 	userId        String
 	groupId       String
@@ -130,30 +135,57 @@ model Sentence {
 
 /* Comment for the sentence */
 model Comment {
-	id            String    @id @default(uuid())     
+	id            String    @id @default(uuid()) // Primary Key
 	content       String    @db.Text
 	
-  userId        String
-  sentenceId    String
+    userId        String
+    sentenceId    String
     
-  user          User      @relation(fields: [userId], references: [id]) 
-  sentence      Sentence  @relation(fields: [sentenceId], references: [id])
+    user          User      @relation(fields: [userId], references: [id]) 
+    sentence      Sentence  @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
 
 	createdAt     DateTime  @default(now())
 }
 
 /* Reaction for the record */
 model RecordReaction {
-	id            String    @id @default(uuid())
+	id            String    @id @default(uuid()) // Primary Key
 	emoji         String
 	
 	userId        String
 	recordId      String
 	
-	user          User            @relation(fields: [userId], references: [id])
-	record        ReadingRecord  @relation(fields: [recordId], references: [id])
+	user          User           @relation(fields: [userId], references: [id])
+	record        ReadingRecord  @relation(fields: [recordId], references: [id], onDelete: Cascade)
 
 	createdAt     DateTime  @default(now())
 	
 	@@unique([userId, recordId])
+}
+
+/* Comment for the reading record */
+model RecordComment {
+	id            String          @id @default(uuid()) // Primary Key
+	content       String          @db.Text
+	
+    userId        String
+    recordId      String
+  
+    user          User            @relation(fields: [userId], references: [id])
+    record        ReadingRecord   @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  
+	createdAt     DateTime  @default(now())
+}
+
+/* Like for the reading record */
+model Like {
+	userId        String    
+	recordId      String
+	
+	user          User            @relation(fields: [userId], references: [id])
+    record        ReadingRecord   @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  
+	createdAt     DateTime  @default(now())
+	
+	@@id([userId, recordId]) // Primary Key
 }
