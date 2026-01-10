@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/* User & Friendship */
+model User {
+	id            String    @id @default(uuid()) // Primary Key
+	email         String    @unique
+	nickname      String
+	
+	followedBy    Friendship[] @relation("following")
+	following     Friendship[] @relation("follower")
+	
+	groups        GroupMember[]
+	records       ReadingRecord[]
+	sentences     Sentence[]
+	comments      Comment[]
+	reactions     RecordReaction[]
+}
+
+// Junction Table
+model Friendship {
+	followerId    String
+	followingId   String
+	
+	follower      User     @relation("follower", fields: [followerId], references: [id])
+	following     User     @relation("following", fields: [followingId], references: [id])
+	
+	@@id([followerId, followingId]) // Primary Key	
+}
+
+/* Book */
+model Book {
+	isbn          String   @id // Primary Key
+	title         String
+	author        String
+	publisher     String
+	coverImage    String
+	totalPage     Int?
+	
+	groups        Group[]
+	records       ReadingRecord[]
+	sentences     Sentence[]
+}
+
+/* Group */
+model Group {
+	id          String      @id @default(uuid()) // Primary Key
+	name        String
+	startDate   DateTime
+	goalDate    DateTime?
+	
+	bookIsbn    String
+	book        Book        @relation(fields: [bookIsbn], references: [isbn])
+	
+	members     GroupMember[]
+	sentences   Sentence[]
+	records     ReadingRecord[]
+	
+	createdAt     DateTime @default(now())
+}
+
+// Junction Table
+model GroupMember {
+	userId      String
+	groupId     String
+	
+	user        User        @relation(fields: [userId], references: [id])
+	group       Group       @relation(fields: [groupId], references: [id])
+	
+	// Reading Progress
+	lastReadPage Int       @default(0)
+	isFinished   Boolean   @default(false)
+	
+	@@id([userId, groupId]) // Primary Key
+}
+
+/* Reading Record (for gallery & Calendar) */
+model ReadingRecord {
+	id            String    @id @default(uuid()) // Primary Key
+	readDate      DateTime
+	startPage     Int
+	endPage       Int
+	comment       String?
+	imageUrl      String
+	
+	userId        String
+	bookIsbn      String
+	groupId       String
+	
+	user          User     @relation(fields: [userId], references: [id])
+	book          Book     @relation(fields: [bookIsbn], references: [isbn])
+	group         Group    @relation(fields: [groupId], references: [id])
+	
+	reactions     RecordReaction[]
+
+	createdAt     DateTime @default(now())
+}
+
+/* Sentence chosen by user */
+model Sentence {
+	id            String    @id @default(uuid())
+	content       String    @db.Text
+  pageNo        Int
+  thought       String?   @db.Text
+
+	userId        String
+	groupId       String
+	bookIsbn      String
+	
+	user          User     @relation(fields: [userId], references: [id])
+	group         Group    @relation(fields: [groupId], references: [id])
+	book          Book     @relation(fields: [bookIsbn], references: [isbn])
+	
+	comments      Comment[]
+	
+	createdAt     DateTime @default(now())
+}
+
+/* Comment for the sentence */
+model Comment {
+	id            String    @id @default(uuid())     
+	content       String    @db.Text
+	
+  userId        String
+  sentenceId    String
+    
+  user          User      @relation(fields: [userId], references: [id]) 
+  sentence      Sentence  @relation(fields: [sentenceId], references: [id])
+
+	createdAt     DateTime  @default(now())
+}
+
+/* Reaction for the record */
+model RecordReaction {
+	id            String    @id @default(uuid())
+	emoji         String
+	
+	userId        String
+	recordId      String
+	
+	user          User            @relation(fields: [userId], references: [id])
+	record        ReadingRecord  @relation(fields: [recordId], references: [id])
+
+	createdAt     DateTime  @default(now())
+	
+	@@unique([userId, recordId])
+}
