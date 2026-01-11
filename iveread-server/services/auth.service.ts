@@ -1,10 +1,9 @@
 import { db } from "@/lib/db";
-import { CreateUserDto, LoginUserDto } from "@/types/user"
+import { CreateUserDto, LoginUserDto, UserResponseDto } from "@/types/user"
 import { ERROR_CODES } from "@/app/constants/errorCodes"
 import bcrypt from "bcrypt";
-import { nextTick } from "process";
 
-export const signupUser = async (data: CreateUserDto) => {
+export const signupUser = async (data: CreateUserDto): Promise<UserResponseDto> => {
     const { email, password, nickname } = data;
 
     // Check whether the email is available
@@ -34,7 +33,7 @@ export const signupUser = async (data: CreateUserDto) => {
     };
 };
 
-export const loginUser = async (data: LoginUserDto) => {
+export const loginUser = async (data: LoginUserDto): Promise<UserResponseDto> =>{
     const { email, password } = data;
 
     // Check whether the user exists
