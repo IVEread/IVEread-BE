@@ -77,3 +77,31 @@ export const getGroups = async (userId: string): Promise<GroupResponseDto[]> => 
         createdAt: group.createdAt,
     }));
 }
+
+export const getGroup = async (groupId: string): Promise<GroupResponseDto> => {
+    
+    const group = await db.group.findUnique({
+        where: { id: groupId },
+        include: {
+            book: true,
+            _count: {
+                select: {members: true}
+            }
+        }
+    });
+
+    if (!group) {
+        throw new Error(ERROR_CODES.GROUP_NOT_FOUND);
+    }
+
+    return {
+        id: group.id,
+        name: group.name,
+        startDate: group.startDate,
+        goalDate: group.goalDate,
+        bookTitle: group.book.title,
+        bookCover: group.book.coverImage,
+        memberCount: group._count.members,
+        createdAt: group.createdAt,
+    };
+}
