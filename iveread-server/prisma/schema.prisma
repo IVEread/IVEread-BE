@@ -19,6 +19,7 @@ model User {
 	email         String    @unique
 	password      String
 	nickname      String
+	emoji         String?
 	
 	followedBy    Friendship[] @relation("following")
 	following     Friendship[] @relation("follower")
@@ -30,6 +31,7 @@ model User {
 	recordComments    RecordComment[]
 	likes             Like[]
 	reactions         RecordReaction[]
+	attendances       Attendance[]
 }
 
 // Junction Table
@@ -70,6 +72,7 @@ model Group {
 	members      GroupMember[]
 	sentences    Sentence[]
 	records      ReadingRecord[]
+	attendances  Attendance[]
 	
 	createdAt    DateTime @default(now())
 }
@@ -188,4 +191,18 @@ model Like {
 	createdAt     DateTime  @default(now())
 	
 	@@id([userId, recordId]) // Primary Key
+}
+
+/* Attendance */
+model Attendance {
+	id            String   @id @default(uuid()) // Primary Key
+	date          DateTime @default(now()) @db.Date
+	
+	userId        String
+	groupId       String
+	
+	user          User     @relation(fields: [userId], references: [id])
+	group         Group    @relation(fields: [groupId], references: [id])
+	
+	@@unique([userId, groupId, date])
 }
