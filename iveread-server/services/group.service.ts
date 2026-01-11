@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { CreateGroupDto, GroupResponseDto } from "@/types/group";
+import { CreateGroupDto, GroupResponseDto, UpdatedGroupDto } from "@/types/group";
 import { ERROR_CODES } from "@/app/constants/errorCodes";
 import bcrypt from "bcrypt";
 
@@ -104,4 +104,94 @@ export const getGroup = async (groupId: string): Promise<GroupResponseDto> => {
         memberCount: group._count.members,
         createdAt: group.createdAt,
     };
+}
+
+export const updateGroup = async (groupId: string, data: UpdatedGroupDto): Promise<GroupResponseDto> => {
+    try {
+        const updatedGroup = await db.group.update({
+            where: { id: groupId },
+            data: {
+                name: data.name,
+                goalDate: data.goalDate ? new Date(data.goalDate) : undefined,
+            },
+            include: {
+                book: true,
+                _count: {
+                select: { members: true }
+                }
+            }
+        });
+
+        return {
+            id: updatedGroup.id,
+            name: updatedGroup.name,
+            startDate: updatedGroup.startDate,
+            goalDate: updatedGroup.goalDate,
+            bookTitle: updatedGroup.book.title,
+            bookCover: updatedGroup.book.coverImage,
+            memberCount: updatedGroup._count.members,
+            createdAt: updatedGroup.createdAt,
+        };
+
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new Error(ERROR_CODES.GROUP_NOT_FOUND);
+        }
+        throw error;
+    }
+}
+
+export const leaveGroup = async (userId: string, groupId: string) => {
+    await db.$transaction(async (tx) => {
+        try {
+            await tx.groupMember.delete({
+                where: {
+                    userId_groupId: {
+                        userId: userId,
+                        groupId: groupId,
+                    },
+                },
+            });
+        } catch (error: any) {
+            if (error.code === 'P2025') {
+                throw new Error(ERROR_CODES.NOT_MEMBER);
+            }
+            throw error;
+        }
+
+        const remainingMembers = await tx.groupMember.count({
+            where: { groupId: groupId },
+        });
+
+        if (remainingMembers === 0) {
+            await tx.group.delete({
+                where: { id: groupId },
+            });
+            console.log(`[Notice] 멤버가 0명이 되어 그룹(${groupId})이 자동 삭제되었습니다. `);
+        }
+    });
+
+}
+
+export const joinGroup = async (userId: string, groupId: string) => {
+    try {
+        await db.groupMember.create({
+            data: {
+                userId: userId,
+                groupId: groupId,
+            }
+        });
+    } catch (error: any) {
+        // P2002: Unique constraint failed
+        if (error.code === 'P2002') {
+            throw new Error(ERROR_CODES.ALREADY_JOINED);
+        }
+
+        // P2003: Foreign key constraint failed
+        if (error.code === 'P2003') {
+            throw new Error(ERROR_CODES.GROUP_NOT_FOUND);
+        }
+
+        throw error;
+    }
 }

@@ -23,3 +23,8 @@ export interface GroupResponseDto {
     memberCount: number;
     createdAt: Date;
 }
+
+export interface UpdatedGroupDto {
+    name?: string;
+    goalDate?: string;
+}
