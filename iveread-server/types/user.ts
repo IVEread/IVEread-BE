@@ -16,3 +16,10 @@ export interface UserResponseDto {
     nickname: string;
     emoji: string | null;
 }
+
+export interface UserProfileResponseDto {
+    id: string;
+    email: string;
+    nickname: string;
+    emoji: string | null;
+}
