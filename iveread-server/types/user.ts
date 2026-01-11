@@ -23,3 +23,8 @@ export interface UserProfileResponseDto {
     nickname: string;
     emoji: string | null;
 }
+
+export interface UpdateUserDto {
+    nickname?: string,
+    emoji?: string
+}
