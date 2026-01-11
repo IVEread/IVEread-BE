@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
-import { UpdateUserDto, UserProfileResponseDto } from "@/types/user"
-import { ERROR_CODES } from "@/app/constants/errorCodes"
-import { ApiResponse } from "@/types/response";
+import { UpdateUserDto, UserProfileResponseDto } from "@/types/user";
+import { ERROR_CODES } from "@/app/constants/errorCodes";
 
 export const getUserProfile = async (userId: string): Promise<UserProfileResponseDto> => {
     const user = await db.user.findUnique({

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { CreateUserDto, LoginUserDto, UserResponseDto } from "@/types/user"
-import { ERROR_CODES } from "@/app/constants/errorCodes"
+import { CreateUserDto, LoginUserDto, UserResponseDto } from "@/types/user";
+import { ERROR_CODES } from "@/app/constants/errorCodes";
 import bcrypt from "bcrypt";
 
 export const signupUser = async (data: CreateUserDto): Promise<UserResponseDto> => {
@@ -35,7 +35,7 @@ export const signupUser = async (data: CreateUserDto): Promise<UserResponseDto> 
     };
 };
 
-export const loginUser = async (data: LoginUserDto): Promise<UserResponseDto> =>{
+export const loginUser = async (data: LoginUserDto): Promise<UserResponseDto> => {
     const { email, password } = data;
 
     // Check whether the user exists
