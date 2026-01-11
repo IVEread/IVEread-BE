@@ -4,7 +4,7 @@ import { ERROR_CODES } from "@/app/constants/errorCodes"
 import bcrypt from "bcrypt";
 
 export const signupUser = async (data: CreateUserDto): Promise<UserResponseDto> => {
-    const { email, password, nickname } = data;
+    const { email, password, nickname, emoji } = data;
 
     // Check whether the email is available
     const existingUser = await db.user.findUnique({
@@ -22,7 +22,8 @@ export const signupUser = async (data: CreateUserDto): Promise<UserResponseDto> 
         data: {
             email: email,
             password: hashedPassword,
-            nickname: nickname
+            nickname: nickname,
+            emoji: emoji || null
         }
     });
 
@@ -30,6 +31,7 @@ export const signupUser = async (data: CreateUserDto): Promise<UserResponseDto> 
         id: newUser.id,
         email: newUser.email,
         nickname: newUser.nickname,
+        emoji: newUser.emoji
     };
 };
 
@@ -55,6 +57,7 @@ export const loginUser = async (data: LoginUserDto): Promise<UserResponseDto> =>
     return {
         id: user.id,
         email: user.email,
-        nickname: user.nickname
+        nickname: user.nickname,
+        emoji: user.emoji
     };
 };

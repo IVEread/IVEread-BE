@@ -20,6 +20,8 @@ export async function POST(request: Request) {
             );
         }
 
+        body.emoji = body.emoji || "😊";
+
         const newUser = await signupUser(body);
         return NextResponse.json<ApiResponse<UserResponseDto>>({ 
             success: true, 
