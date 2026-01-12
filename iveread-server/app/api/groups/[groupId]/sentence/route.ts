@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSentence, getSentences } from "@/services/sentence.service";
-import { CreateSentenceDto, UpdateSentenceDto, SentenceResponseDto } from "@/types/sentence";
+import { CreateSentenceDto, SentenceResponseDto } from "@/types/sentence";
 import { ApiResponse } from "@/types/response";
 import { ERROR_CODES } from "@/app/constants/errorCodes"
 

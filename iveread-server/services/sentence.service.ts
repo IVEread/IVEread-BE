@@ -58,3 +58,80 @@ export const getSentences = async (groupId: string): Promise<SentenceResponseDto
         bookCoverImage: sentence.book.coverImage,
     }));
 }
+
+export const updateSentence = async (userId: string, sentenceId: string, data: UpdateSentenceDto): Promise<SentenceResponseDto> => {
+    try {
+        const existing = await db.sentence.findUnique({
+            where: { id: sentenceId }
+        });
+
+        if (!existing) {
+            throw new Error(ERROR_CODES.SENTENCE_NOT_FOUND);
+        }
+
+        if (existing.userId !== userId) {
+            throw new Error(ERROR_CODES.NOT_SENTENCE_OWNER)
+        }
+
+        const updatedSentence = await db.sentence.update({
+            where: { 
+                id: sentenceId,
+                userId: userId
+            },
+            data: {
+                content: data.content,
+                pageNo: data.pageNo,
+                thought: data.thought,
+            },
+            include: { user: true, book: true }
+        });
+
+        return {
+            id: updatedSentence.id,
+            content: updatedSentence.content,
+            pageNo: updatedSentence.pageNo,
+            thought: updatedSentence.thought,
+            createdAt: updatedSentence.createdAt,
+            userId: updatedSentence.user.id,
+            userNickname: updatedSentence.user.nickname,
+            userProfileEmoji: updatedSentence.user.emoji,
+            bookIsbn: updatedSentence.book.isbn,
+            bookTitle: updatedSentence.book.title,
+            bookCoverImage: updatedSentence.book.coverImage,
+    }
+
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new Error(ERROR_CODES.SENTENCE_NOT_FOUND);
+        }
+        throw error;
+    }
+}
+
+export const deleteSentence = async (userId: string, sentenceId: string) => {
+    try {
+        const existing = await db.sentence.findUnique({
+            where: { id: sentenceId }
+        });
+
+        if (!existing) {
+            throw new Error(ERROR_CODES.SENTENCE_NOT_FOUND);
+        }
+
+        if (existing.userId !== userId) {
+            throw new Error(ERROR_CODES.NOT_SENTENCE_OWNER)
+        }
+        
+        await db.sentence.delete({
+            where: {
+                id: sentenceId,
+                userId: userId
+            }
+        });
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            throw new Error(ERROR_CODES.SENTENCE_NOT_FOUND);
+        }
+        throw error;
+    }
+}
