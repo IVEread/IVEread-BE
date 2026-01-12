@@ -18,15 +18,11 @@ export interface SentenceResponseDto {
     thought: string | null;
     createdAt: Date;
 
-    userInfo: {
-        id: string;
-        nickname: string;
-        profileImage: string | null;
-    }
+    userId: string;
+    userNickname: string;
+    userProfileEmoji: string | null;
 
-    bookInfo: {
-        isbn: string;
-        title: string;
-        coverImage: string;
-    }
+    bookIsbn: string;
+    bookTitle: string;
+    bookCoverImage: string;
 }

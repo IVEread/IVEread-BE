@@ -24,15 +24,11 @@ export const createSentence = async (userId: string, groupId: string, data: Crea
         pageNo: newSentence.pageNo,
         thought: newSentence.thought,
         createdAt: newSentence.createdAt,
-        userInfo: {
-            id: newSentence.user.id,
-            nickname: newSentence.user.nickname,
-            profileImage: newSentence.user.emoji,
-        },   
-        bookInfo: {
-            isbn: newSentence.book.isbn,
-            title: newSentence.book.title,
-            coverImage: newSentence.book.coverImage,
-        }
+        userId: newSentence.user.id,
+        userNickname: newSentence.user.nickname,
+        userProfileEmoji: newSentence.user.emoji,
+        bookIsbn: newSentence.book.isbn,
+        bookTitle: newSentence.book.title,
+        bookCoverImage: newSentence.book.coverImage,
     }
 }
