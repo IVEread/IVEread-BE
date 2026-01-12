@@ -51,11 +51,48 @@ export const createRecord = async (userId: string, groupId: string, data: Create
     }
 }
 
-export const getRecords = async (groupId: string): Promise<RecordResponseDto[]> => {
-    
+export const getRecords = async (
+    requesterId: string,
+    groupId: string,
+    options?: { userId?: string; year?: number; month?: number }
+): Promise<RecordResponseDto[]> => {
+    const requesterMember = await db.groupMember.findUnique({
+        where: {
+            userId_groupId: { userId: requesterId, groupId }
+        }
+    });
+
+    if (!requesterMember) {
+        throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+    }
+
+    if (options?.userId && options.userId !== requesterId) {
+        const targetMember = await db.groupMember.findUnique({
+            where: {
+                userId_groupId: { userId: options.userId, groupId }
+            }
+        });
+
+        if (!targetMember) {
+            throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+        }
+    }
+
+    const where: any = { groupId };
+
+    if (options?.userId) {
+        where.userId = options.userId;
+    }
+
+    if (options?.year && options?.month) {
+        const startDate = new Date(Date.UTC(options.year, options.month - 1, 1));
+        const endDate = new Date(Date.UTC(options.year, options.month, 1));
+        where.readDate = { gte: startDate, lt: endDate };
+    }
+
     const records = await db.readingRecord.findMany({
-        orderBy: { createdAt: 'desc' },
-        where: { groupId: groupId },
+        orderBy: { readDate: "desc" },
+        where,
         include: {
             user: true,
             book: true
@@ -79,6 +116,51 @@ export const getRecords = async (groupId: string): Promise<RecordResponseDto[]> 
         bookTitle: record.book.title,
         bookCoverImage: record.book.coverImage,
     }));
+}
+
+export const getRecordById = async (
+    requesterId: string,
+    recordId: string
+): Promise<RecordResponseDto> => {
+    const record = await db.readingRecord.findUnique({
+        where: { id: recordId },
+        include: {
+            user: true,
+            book: true
+        }
+    });
+
+    if (!record) {
+        throw new Error(ERROR_CODES.RECORD_NOT_FOUND);
+    }
+
+    const isMember = await db.groupMember.findUnique({
+        where: {
+            userId_groupId: { userId: requesterId, groupId: record.groupId }
+        }
+    });
+
+    if (!isMember) {
+        throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+    }
+
+    return {
+        id: record.id,
+        readDate: record.readDate,
+        startPage: record.startPage,
+        endPage: record.endPage,
+        comment: record.comment,
+        imageUrl: record.imageUrl,
+        createdAt: record.createdAt,
+        
+        userId: record.user.id,
+        userNickname: record.user.nickname,
+        userProfileEmoji: record.user.emoji,
+
+        bookIsbn: record.book.isbn,
+        bookTitle: record.book.title,
+        bookCoverImage: record.book.coverImage,
+    };
 }
 
 export const updateRecord = async (userId: string, recordId: string, data: UpdateRecordDto): Promise<RecordResponseDto> => {
