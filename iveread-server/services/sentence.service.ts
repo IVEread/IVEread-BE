@@ -32,3 +32,29 @@ export const createSentence = async (userId: string, groupId: string, data: Crea
         bookCoverImage: newSentence.book.coverImage,
     }
 }
+
+export const getSentences = async (groupId: string): Promise<SentenceResponseDto[]> => {
+    
+    const sentences = await db.sentence.findMany({
+        orderBy: { createdAt: 'desc' },
+        where: { groupId: groupId },
+                include: {
+            user: true,
+            book: true,
+        }
+    });
+
+    return sentences.map(sentence => ({
+        id: sentence.id,
+        content: sentence.content,
+        pageNo: sentence.pageNo,
+        thought: sentence.thought,
+        createdAt: sentence.createdAt,
+        userId: sentence.user.id,
+        userNickname: sentence.user.nickname,
+        userProfileEmoji: sentence.user.emoji,
+        bookIsbn: sentence.book.isbn,
+        bookTitle: sentence.book.title,
+        bookCoverImage: sentence.book.coverImage,
+    }));
+}
