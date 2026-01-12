@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
 import { CreateGroupDto, GroupResponseDto, UpdatedGroupDto } from "@/types/group";
 import { ERROR_CODES } from "@/app/constants/errorCodes";
+import { Group } from "@prisma/client";
 
-export const createGroup = async (userId: string, data: CreateGroupDto) => {
+export const createGroup = async (userId: string, data: CreateGroupDto): Promise<GroupResponseDto> => {
     const newGroup = await db.group.create({
         data: {
             name: data.name,
