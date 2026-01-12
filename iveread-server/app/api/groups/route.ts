@@ -65,7 +65,7 @@ export async function POST(request: Request) {
 
     const body = await request.json() as CreateGroupDto;
 
-    if (!body.name || !body.book.isbn) {
+    if (!body.name || !body.book?.isbn) {
         return NextResponse.json(
             { success: false, 
                 error: {
@@ -82,11 +82,11 @@ export async function POST(request: Request) {
             { success: true, 
                 data: newGroup
             }, 
-            { status: 200 } // OK
+            { status: 201 } // Created
         );
 
   } catch (error) {
-    console.error("그룹 목록 조회 실패:", error);
+    console.error("그룹 생성 실패:", error);
     
         return NextResponse.json(
             {
