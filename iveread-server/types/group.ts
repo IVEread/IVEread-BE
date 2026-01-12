@@ -24,7 +24,7 @@ export interface GroupResponseDto {
     createdAt: Date;
 }
 
-export interface UpdatedGroupDto {
+export interface UpdateGroupDto {
     name?: string;
     goalDate?: string;
 }

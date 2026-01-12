@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { CreateGroupDto, GroupResponseDto, UpdatedGroupDto } from "@/types/group";
+import { CreateGroupDto, GroupResponseDto, UpdateGroupDto } from "@/types/group";
 import { ERROR_CODES } from "@/app/constants/errorCodes";
 import { Group } from "@prisma/client";
 
@@ -106,7 +106,7 @@ export const getGroup = async (groupId: string): Promise<GroupResponseDto> => {
     };
 }
 
-export const updateGroup = async (groupId: string, data: UpdatedGroupDto): Promise<GroupResponseDto> => {
+export const updateGroup = async (groupId: string, data: UpdateGroupDto): Promise<GroupResponseDto> => {
     try {
         const updatedGroup = await db.group.update({
             where: { id: groupId },

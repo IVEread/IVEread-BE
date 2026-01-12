@@ -6,8 +6,8 @@ export interface CreateSentenceDto {
 }
 
 export interface UpdateSentenceDto {
-    content: string;
-    pageNo: number;
+    content?: string;
+    pageNo?: number;
     thought?: string;
 }
 
