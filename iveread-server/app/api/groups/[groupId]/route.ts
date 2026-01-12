@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGroup, updateGroup } from "@/services/group.service";
-import { GroupResponseDto, UpdatedGroupDto } from "@/types/group";
+import { GroupResponseDto, UpdateGroupDto } from "@/types/group";
 import { ApiResponse } from "@/types/response";
 import { ERROR_CODES } from "@/app/constants/errorCodes"
 
@@ -69,7 +69,7 @@ export async function PATCH(
         }
 
         const { groupId } = await params;
-        const body = await request.json() as UpdatedGroupDto;
+        const body = await request.json() as UpdateGroupDto;
 
         if (!body.name && !body.goalDate) {
             return NextResponse.json(
