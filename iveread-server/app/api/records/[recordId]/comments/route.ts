@@ -17,10 +17,10 @@ export async function POST(
                     success: false,
                     error: {
                         code: ERROR_CODES.UNAUTHORIZED,
-                        message: "Authentication required."
+                        message: "로그인이 필요합니다. "
                     }
                 },
-                { status: 401 }
+                { status: 401 } // Unauthorized
             );
         }
 
@@ -33,10 +33,10 @@ export async function POST(
                     success: false,
                     error: {
                         code: ERROR_CODES.MISSING_FIELDS,
-                        message: "Missing required fields."
+                        message: "필수 입력값이 누락되었습니다. "
                     }
                 },
-                { status: 400 }
+                { status: 400 } // Bad Request
             );
         }
 
@@ -47,10 +47,10 @@ export async function POST(
                 success: true,
                 data: newComment
             },
-            { status: 201 }
+            { status: 201 } // Created
         );
     } catch (error: any) {
-        console.error("Record comment create failed:", error);
+        console.error("독서 기록 댓글 생성 실패: ", error);
 
         if (error.message === ERROR_CODES.RECORD_NOT_FOUND) {
             return NextResponse.json(
@@ -58,10 +58,10 @@ export async function POST(
                     success: false,
                     error: {
                         code: ERROR_CODES.RECORD_NOT_FOUND,
-                        message: "Record not found."
+                        message: "독서 기록을 찾을 수 없습니다. "
                     }
                 },
-                { status: 404 }
+                { status: 404 } // Not Found
             );
         }
 
@@ -71,10 +71,10 @@ export async function POST(
                     success: false,
                     error: {
                         code: ERROR_CODES.NOT_GROUP_MEMBER,
-                        message: "User is not a group member."
+                        message: "그룹의 멤버가 아닙니다. "
                     }
                 },
-                { status: 403 }
+                { status: 403 } // Forbidden
             );
         }
 
@@ -83,10 +83,10 @@ export async function POST(
                 success: false,
                 error: {
                     code: ERROR_CODES.INTERNAL_SERVER_ERROR,
-                    message: "Internal server error."
+                    message: "서버 내부에 오류가 발생했습니다. "
                 }
             },
-            { status: 500 }
+            { status: 500 } // Internal Server Error
         );
     }
 }
@@ -104,7 +104,7 @@ export async function GET(
                     success: false,
                     error: {
                         code: ERROR_CODES.UNAUTHORIZED,
-                        message: "Authentication required."
+                        message: "로그인이 필요합니다. "
                     }
                 },
                 { status: 401 }
@@ -122,14 +122,14 @@ export async function GET(
             { status: 200 }
         );
     } catch (error) {
-        console.error("Record comment lookup failed:", error);
+        console.error("독서 기록 댓글 조회 실패: ", error);
 
         return NextResponse.json(
             {
                 success: false,
                 error: {
                     code: ERROR_CODES.INTERNAL_SERVER_ERROR,
-                    message: "Internal server error."
+                    message: "서버 내부에 오류가 발생했습니다. "
                 }
             },
             { status: 500 }

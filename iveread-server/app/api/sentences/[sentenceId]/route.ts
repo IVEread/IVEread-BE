@@ -36,7 +36,7 @@ export async function PATCH(
                         message: "변경할 내용이 없습니다. "
                     }
                 },
-                { status: 400 }
+                { status: 400 } // Bad Request
             );
         }
 
