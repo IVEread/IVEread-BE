@@ -17,10 +17,10 @@ export async function PATCH(
                     success: false,
                     error: {
                         code: ERROR_CODES.UNAUTHORIZED,
-                        message: "Authentication required."
+                        message: "로그인이 필요합니다. "
                     }
                 },
-                { status: 401 }
+                { status: 401 } // Unauthorized
             );
         }
 
@@ -32,11 +32,11 @@ export async function PATCH(
                 {
                     success: false,
                     error: {
-                        code: ERROR_CODES.INVALID_REQUEST,
-                        message: "No emoji to update."
+                        code: ERROR_CODES.MISSING_FIELDS,
+                        message: "필수 입력값이 누락되었습니다. "
                     }
                 },
-                { status: 400 }
+                { status: 400 } // Bad Request
             );
         }
 
@@ -47,7 +47,7 @@ export async function PATCH(
             data: updated
         });
     } catch (error: any) {
-        console.error("Record reaction update failed:", error);
+        console.error("독서 기록 반응 수정 실패:", error);
 
         if (error.message === ERROR_CODES.REACTION_NOT_FOUND) {
             return NextResponse.json(
@@ -55,10 +55,10 @@ export async function PATCH(
                     success: false,
                     error: {
                         code: ERROR_CODES.REACTION_NOT_FOUND,
-                        message: "Reaction not found."
+                        message: "반응을 찾을 수 없습니다. "
                     }
                 },
-                { status: 404 }
+                { status: 404 } // Not Found
             );
         } else if (error.message === ERROR_CODES.NOT_REACTION_OWNER) {
             return NextResponse.json(
@@ -66,10 +66,10 @@ export async function PATCH(
                     success: false,
                     error: {
                         code: ERROR_CODES.NOT_REACTION_OWNER,
-                        message: "Not reaction owner."
+                        message: "본인의 반응만 수정할 수 있습니다. "
                     }
                 },
-                { status: 403 }
+                { status: 403 } // Forbidden
             );
         }
 
@@ -78,10 +78,10 @@ export async function PATCH(
                 success: false,
                 error: {
                     code: ERROR_CODES.INTERNAL_SERVER_ERROR,
-                    message: "Internal server error."
+                    message: "서버 내부에 오류가 발생했습니다. "
                 }
             },
-            { status: 500 }
+            { status: 500 } // Internal Server Error
         );
     }
 }
@@ -99,10 +99,10 @@ export async function DELETE(
                     success: false,
                     error: {
                         code: ERROR_CODES.UNAUTHORIZED,
-                        message: "Authentication required."
+                        message: "로그인이 필요합니다. "
                     }
                 },
-                { status: 401 }
+                { status: 401 } // Unauthorized
             );
         }
 
@@ -112,10 +112,10 @@ export async function DELETE(
         return NextResponse.json<ApiResponse<null>>({
             success: true,
             data: null,
-            message: "Reaction deleted."
+            message: "반응이 삭제되었습니다. "
         });
     } catch (error: any) {
-        console.error("Record reaction delete failed:", error);
+        console.error("반응 삭제 실패", error);
 
         if (error.message === ERROR_CODES.REACTION_NOT_FOUND) {
             return NextResponse.json(
@@ -123,10 +123,10 @@ export async function DELETE(
                     success: false,
                     error: {
                         code: ERROR_CODES.REACTION_NOT_FOUND,
-                        message: "Reaction not found."
+                        message: "반응을 찾을 수 없습니다. "
                     }
                 },
-                { status: 404 }
+                { status: 404 } // Not Found
             );
         } else if (error.message === ERROR_CODES.NOT_REACTION_OWNER) {
             return NextResponse.json(
@@ -134,10 +134,10 @@ export async function DELETE(
                     success: false,
                     error: {
                         code: ERROR_CODES.NOT_REACTION_OWNER,
-                        message: "Not reaction owner."
+                        message: "본인의 반응만 삭제할 수 있습니다. "
                     }
                 },
-                { status: 403 }
+                { status: 403 } // Forbidden
             );
         }
 
@@ -146,10 +146,10 @@ export async function DELETE(
                 success: false,
                 error: {
                     code: ERROR_CODES.INTERNAL_SERVER_ERROR,
-                    message: "Internal server error."
+                    message: "서버 내부에 오류가 발생했습니다."
                 }
             },
-            { status: 500 }
+            { status: 500 } // Internal Server Error
         );
     }
 }
