@@ -38,6 +38,8 @@ model User {
 model Friendship {
 	followerId    String
 	followingId   String
+
+	createdAt     DateTime @default(now())
 	
 	follower      User     @relation("follower", fields: [followerId], references: [id])
 	following     User     @relation("following", fields: [followingId], references: [id])
