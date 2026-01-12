@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 import { CreateGroupDto, GroupResponseDto, UpdatedGroupDto } from "@/types/group";
 import { ERROR_CODES } from "@/app/constants/errorCodes";
-import bcrypt from "bcrypt";
 
 export const createGroup = async (userId: string, data: CreateGroupDto) => {
     const newGroup = await db.group.create({
