@@ -53,35 +53,72 @@ export const createRecord = async (userId: string, groupId: string, data: Create
 
 export const getRecords = async (
     requesterId: string,
-    groupId: string,
+    groupId?: string,
     options?: { userId?: string; year?: number; month?: number }
 ): Promise<RecordResponseDto[]> => {
-    const requesterMember = await db.groupMember.findUnique({
-        where: {
-            userId_groupId: { userId: requesterId, groupId }
-        }
-    });
+    let targetUserId = options?.userId;
 
-    if (!requesterMember) {
-        throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
-    }
-
-    if (options?.userId && options.userId !== requesterId) {
-        const targetMember = await db.groupMember.findUnique({
+    if (groupId) {
+        const requesterMember = await db.groupMember.findUnique({
             where: {
-                userId_groupId: { userId: options.userId, groupId }
+                userId_groupId: { userId: requesterId, groupId }
             }
         });
 
-        if (!targetMember) {
+        if (!requesterMember) {
             throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+        }
+
+        if (options?.userId && options.userId !== requesterId) {
+            const targetMember = await db.groupMember.findUnique({
+                where: {
+                    userId_groupId: { userId: options.userId, groupId }
+                }
+            });
+
+            if (!targetMember) {
+                throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+            }
+        }
+    } else {
+        targetUserId = targetUserId ?? requesterId;
+
+        const targetUser = await db.user.findUnique({
+            where: { id: targetUserId }
+        });
+
+        if (!targetUser) {
+            throw new Error(ERROR_CODES.USER_NOT_FOUND);
+        }
+
+        if (targetUserId !== requesterId) {
+            const friendship = await db.friendship.findUnique({
+                where: {
+                    followerId_followingId: {
+                        followerId: requesterId,
+                        followingId: targetUserId
+                    }
+                }
+            });
+
+            if (!friendship) {
+                throw new Error(ERROR_CODES.NOT_FRIEND);
+            }
         }
     }
 
-    const where: any = { groupId };
+    const where: any = {};
 
-    if (options?.userId) {
-        where.userId = options.userId;
+    if (groupId) {
+        where.groupId = groupId;
+    }
+
+    if (groupId) {
+        if (options?.userId) {
+            where.userId = options.userId;
+        }
+    } else {
+        where.userId = targetUserId ?? requesterId;
     }
 
     if (options?.year && options?.month) {
