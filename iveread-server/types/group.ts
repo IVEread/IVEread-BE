@@ -18,6 +18,7 @@ export interface GroupResponseDto {
     name: string;
     startDate: Date;
     goalDate: Date | null;
+    bookIsbn: string;
     bookTitle: string;
     bookCover: string;
     memberCount: number;

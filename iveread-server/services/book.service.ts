@@ -88,7 +88,19 @@ export const searchBooks = async (query: string, page = 1, size = 10): Promise<B
         SearchTarget: "Book",
     });
 
-    const items = (data.item ?? []).map(mapAladinItemToBook).filter(book => book.isbn);
+    const items = (data.item ?? [])
+        .map((item) => {
+            const mapped = mapAladinItemToBook(item);
+            if (!mapped.publisher) {
+                console.warn("알라딘 검색 결과 publisher 없음:", {
+                    query,
+                    isbn: mapped.isbn,
+                    title: mapped.title,
+                });
+            }
+            return mapped;
+        })
+        .filter((book) => book.isbn);
     return {
         totalResults: data.totalResults ?? items.length,
         items,
