@@ -90,6 +90,7 @@ model GroupMember {
 	// Reading Progress
 	lastReadPage  Int       @default(0)
 	isFinished    Boolean   @default(false)
+	finishedAt    DateTime?
 	
 	@@id([userId, groupId]) // Primary Key
 }
