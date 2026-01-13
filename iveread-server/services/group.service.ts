@@ -199,3 +199,59 @@ export const joinGroup = async (userId: string, groupId: string) => {
         throw error;
     }
 }
+
+export const finishGroupRead = async (userId: string, groupId: string) => {
+    const member = await db.groupMember.findUnique({
+        where: {
+            userId_groupId: {
+                userId: userId,
+                groupId: groupId,
+            }
+        }
+    });
+
+    if (!member) {
+        throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+    }
+
+    if (member.isFinished) {
+        return;
+    }
+
+    await db.groupMember.update({
+        where: {
+            userId_groupId: {
+                userId: userId,
+                groupId: groupId,
+            }
+        },
+        data: {
+            isFinished: true,
+            finishedAt: new Date(),
+        }
+    });
+}
+
+export const getFinishedBooks = async (userId: string) => {
+    const finishedBooks = await db.groupMember.findMany({
+        where: { userId: userId, isFinished: true },
+        orderBy: { group: { startDate: 'desc'} },
+        include: {
+            group: {
+                include: {
+                    book: true,
+                }
+            }
+        },
+    });
+
+    return finishedBooks.map(finishedBook => ({
+        id: finishedBook.group.id,
+        groupId: finishedBook.group.id,
+        bookIsbn: finishedBook.group.bookIsbn,
+        bookTitle: finishedBook.group.book.title,
+        bookAuthor: finishedBook.group.book.author,
+        bookCoverImage: finishedBook.group.book.coverImage,
+        finishedAt: finishedBook.finishedAt ?? new Date(),
+    }));
+};

@@ -29,3 +29,13 @@ export interface UpdateGroupDto {
     name?: string;
     goalDate?: string;
 }
+
+export interface FinishedGroupDto {
+    id: string;
+    groupId: string;
+    bookIsbn: string;
+    bookTitle: string;
+    bookCoverImage: string;
+    bookAuthor: string;
+    finishedAt: Date;
+}
