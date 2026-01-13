@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import { addFriend, removeFriend, getFriends } from "@/services/friend.service";
 import { ERROR_CODES } from "@/app/constants/errorCodes";
 import { ApiResponse } from "@/types/response";
@@ -22,9 +23,9 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { targetId, action } = body;
+        const { targetId, action, email } = body;
 
-        if (!targetId || !action) {
+        if (!action || (!targetId && !email)) {
             return NextResponse.json(
                 {
                     success: false,
@@ -36,9 +37,20 @@ export async function POST(request: Request) {
                 { status: 400 } // Bad Request
             );
         }
+        let resolvedTargetId = targetId;
+        if (!resolvedTargetId && email) {
+            const targetUser = await db.user.findUnique({
+                where: { email }
+            });
+
+            if (!targetUser) {
+                throw new Error(ERROR_CODES.USER_NOT_FOUND);
+            }
+            resolvedTargetId = targetUser.id;
+        }
 
         if (action === 'remove') {
-            await removeFriend(userId, targetId);
+            await removeFriend(userId, resolvedTargetId);
             return NextResponse.json<ApiResponse<null>>({
                 success: true,
                 data: null,
@@ -46,7 +58,7 @@ export async function POST(request: Request) {
             });
 
         } else if (action === 'add') {
-            await addFriend(userId, targetId);
+            await addFriend(userId, resolvedTargetId);
             return NextResponse.json<ApiResponse<null>>({
                 success: true,
                 data: null,

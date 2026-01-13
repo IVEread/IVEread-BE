@@ -61,6 +61,7 @@ export const getFriends = async (myId: string): Promise<FriendResponseDto[]> => 
     return friendships.map(friend => ({
         id: friend.following.id,
         nickname: friend.following.nickname,
+        email: friend.following.email,
         userProfileEmoji: friend.following.emoji,
         followedAt: friend.createdAt
     }));
