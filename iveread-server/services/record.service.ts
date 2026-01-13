@@ -284,3 +284,48 @@ export const deleteRecord = async (userId: string, recordId: string) => {
         throw error;
     }
 }
+
+export const toggleRecordLike = async (userId: string, recordId: string): Promise<{ liked: boolean; likeCount: number }> => {
+    const existing = await db.readingRecord.findUnique({
+        where: { id: recordId },
+        select: { id: true, groupId: true }
+    });
+
+    if (!existing) {
+        throw new Error(ERROR_CODES.RECORD_NOT_FOUND);
+    }
+
+    const isMember = await db.groupMember.findUnique({
+        where: {
+            userId_groupId: { userId, groupId: existing.groupId }
+        }
+    });
+
+    if (!isMember) {
+        throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
+    }
+
+    const existingLike = await db.like.findUnique({
+        where: {
+            userId_recordId: { userId, recordId }
+        }
+    });
+
+    let liked = false;
+    if (!existingLike) {
+        await db.like.create({
+            data: { userId, recordId }
+        });
+        liked = true;
+    } else {
+        await db.like.delete({
+            where: { userId_recordId: { userId, recordId }}
+        });
+    }
+
+    const likeCount = await db.like.count({
+        where: { recordId }
+    });
+
+    return { liked, likeCount };
+}
