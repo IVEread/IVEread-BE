@@ -109,7 +109,7 @@ model ReadingRecord {
 	
 	user            User     @relation(fields: [userId], references: [id])
 	book            Book     @relation(fields: [bookIsbn], references: [isbn])
-	group           Group    @relation(fields: [groupId], references: [id])
+	group           Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 	
 	reactions       RecordReaction[]
 	recordComments  RecordComment[]
