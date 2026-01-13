@@ -85,7 +85,7 @@ model GroupMember {
 	groupId       String
 	
 	user          User        @relation(fields: [userId], references: [id])
-	group         Group       @relation(fields: [groupId], references: [id])
+	group         Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
 	
 	// Reading Progress
 	lastReadPage  Int       @default(0)
@@ -130,7 +130,7 @@ model Sentence {
 	bookIsbn      String
 	
 	user          User     @relation(fields: [userId], references: [id])
-	group         Group    @relation(fields: [groupId], references: [id])
+	group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 	book          Book     @relation(fields: [bookIsbn], references: [isbn])
 	
 	comments      Comment[]
@@ -204,7 +204,7 @@ model Attendance {
 	groupId       String
 	
 	user          User     @relation(fields: [userId], references: [id])
-	group         Group    @relation(fields: [groupId], references: [id])
+	group         Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
 	
 	@@unique([userId, groupId, date])
 }
