@@ -30,4 +30,6 @@ export interface RecordResponseDto {
     bookIsbn: string;
     bookTitle: string;
     bookCoverImage: string;
+
+    likedByMe? : boolean;
 }

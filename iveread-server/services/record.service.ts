@@ -126,7 +126,7 @@ export const getRecords = async (
         const endDate = new Date(Date.UTC(options.year, options.month, 1));
         where.readDate = { gte: startDate, lt: endDate };
     }
-
+    
     const records = await db.readingRecord.findMany({
         orderBy: { readDate: "desc" },
         where,
@@ -135,6 +135,17 @@ export const getRecords = async (
             book: true
         }
     });
+
+    const recordIds = records.map(record => record.id);
+    const liked = recordIds.length ? await db.like.findMany({
+        where: {
+            recordId: { in: recordIds },
+            userId: requesterId
+        },
+        select: { recordId: true }
+    }) : [];
+
+    const likedSet = new Set(liked.map(like => like.recordId));
 
     return records.map(record => ({
         id: record.id,
@@ -152,6 +163,8 @@ export const getRecords = async (
         bookIsbn: record.book.isbn,
         bookTitle: record.book.title,
         bookCoverImage: record.book.coverImage,
+
+        likedByMe: likedSet.has(record.id)
     }));
 }
 
@@ -181,6 +194,12 @@ export const getRecordById = async (
         throw new Error(ERROR_CODES.NOT_GROUP_MEMBER);
     }
 
+    const liked = await db.like.findUnique({
+        where: {
+            userId_recordId: { userId: requesterId, recordId }
+        }
+    });
+
     return {
         id: record.id,
         readDate: record.readDate,
@@ -197,6 +216,8 @@ export const getRecordById = async (
         bookIsbn: record.book.isbn,
         bookTitle: record.book.title,
         bookCoverImage: record.book.coverImage,
+
+        likedByMe: Boolean(liked)
     };
 }
 
@@ -328,4 +349,19 @@ export const toggleRecordLike = async (userId: string, recordId: string): Promis
     });
 
     return { liked, likeCount };
+}
+
+export const getLikeCount = async (recordId: string): Promise<number> => {
+    
+    const existing = await db.readingRecord.findUnique({
+        where: { id: recordId },
+    });
+
+    if (!existing) {
+        throw new Error(ERROR_CODES.RECORD_NOT_FOUND);
+    }
+    const count = await db.like.count({
+        where: { recordId }
+    });
+    return count;
 }
