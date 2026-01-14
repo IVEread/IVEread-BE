@@ -59,12 +59,13 @@ export async function POST(request: Request) {
         const filePath = path.join(uploadsDir, fileName);
 
         await writeFile(filePath, buffer);
+        const fileUrl = new URL(`/uploads/${fileName}`, request.url).toString();
 
         return NextResponse.json(
             {
                 success: true,
                 data: {
-                    url: `/uploads/${fileName}`
+                    url: fileUrl
                 }
             },
             { status: 201 } // Created
