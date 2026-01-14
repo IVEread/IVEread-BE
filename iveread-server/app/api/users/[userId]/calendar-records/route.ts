@@ -17,10 +17,10 @@ export async function GET(
                     success: false,
                     error: {
                         code: ERROR_CODES.UNAUTHORIZED,
-                        message: "로그인이 필요합니다. "
+                        message: "로그인이 필요합니다."
                     }
                 },
-                { status: 401 } // Unauthorized
+                { status: 401 }
             );
         }
 
@@ -31,10 +31,10 @@ export async function GET(
                     success: false,
                     error: {
                         code: ERROR_CODES.MISSING_FIELDS,
-                        message: "필수 입력값이 누락되었습니다. "
+                        message: "필수 입력값이 누락되었습니다."
                     }
                 },
-                { status: 400 } // Bad Request
+                { status: 400 }
             );
         }
 
@@ -52,10 +52,10 @@ export async function GET(
                         success: false,
                         error: {
                             code: ERROR_CODES.INVALID_REQUEST,
-                            message: "연도와 월을 모두 입력해 주세요. "
+                            message: "연도와 월을 모두 입력해주세요."
                         }
                     },
-                    { status: 400 } // Bad Request
+                    { status: 400 }
                 );
             }
 
@@ -68,10 +68,10 @@ export async function GET(
                         success: false,
                         error: {
                             code: ERROR_CODES.INVALID_REQUEST,
-                            message: "유효하지 않은 연도 또는 월입니다. "
+                            message: "유효하지 않은 연도 또는 월입니다."
                         }
                     },
-                    { status: 400 } // Bad Request
+                    { status: 400 }
                 );
             }
         }
@@ -95,10 +95,10 @@ export async function GET(
                     success: false,
                     error: {
                         code: ERROR_CODES.USER_NOT_FOUND,
-                        message: "사용자를 찾을 수 없습니다. "
+                        message: "사용자를 찾을 수 없습니다."
                     }
                 },
-                { status: 404 } // Not Found
+                { status: 404 }
             );
         }
 
@@ -108,10 +108,10 @@ export async function GET(
                     success: false,
                     error: {
                         code: ERROR_CODES.NOT_FRIEND,
-                        message: "친구가 아닌 사용자는 조회할 수 없습니다. "
+                        message: "친구가 아닌 사용자입니다."
                     }
                 },
-                { status: 403 } // Forbidden
+                { status: 403 }
             );
         }
 
@@ -120,10 +120,10 @@ export async function GET(
                 success: false,
                 error: {
                     code: ERROR_CODES.INTERNAL_SERVER_ERROR,
-                    message: "서버 내부에 오류가 발생했습니다. "
+                    message: "서버 오류가 발생했습니다."
                 }
             },
-            { status: 500 } // Internal Server Error
+            { status: 500 }
         );
     }
 }
