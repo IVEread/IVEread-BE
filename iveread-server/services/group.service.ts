@@ -88,6 +88,17 @@ export const getGroup = async (groupId: string): Promise<GroupResponseDto> => {
             book: true,
             _count: {
                 select: {members: true}
+            },
+            members: {
+                select: {
+                    userId: true,
+                    user: {
+                        select: {
+                            nickname: true,
+                            emoji: true,
+                        }
+                    }
+                }
             }
         }
     });
@@ -106,6 +117,11 @@ export const getGroup = async (groupId: string): Promise<GroupResponseDto> => {
         bookCover: group.book.coverImage,
         memberCount: group._count.members,
         createdAt: group.createdAt,
+        members: group.members.map(member => ({
+            id: member.userId,
+            nickname: member.user.nickname,
+            emoji: member.user.emoji ?? "",
+        })),
     };
 }
 

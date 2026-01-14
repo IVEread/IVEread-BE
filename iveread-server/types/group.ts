@@ -13,6 +13,12 @@ export interface CreateGroupDto {
     }
 }
 
+export interface GroupMemberDto {
+    id: string;
+    nickname: string;
+    emoji: string;
+}
+
 export interface GroupResponseDto {
     id: string;
     name: string;
@@ -23,6 +29,7 @@ export interface GroupResponseDto {
     bookCover: string;
     memberCount: number;
     createdAt: Date;
+    members?: GroupMemberDto[];
 }
 
 export interface UpdateGroupDto {
