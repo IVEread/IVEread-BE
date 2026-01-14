@@ -255,3 +255,33 @@ export const getFinishedBooks = async (userId: string) => {
         finishedAt: finishedBook.finishedAt ?? new Date(),
     }));
 };
+
+export const searchGroups = async (userId: string, groupName: string): Promise<GroupResponseDto[]> => {
+    const groups = await db.group.findMany({
+        where: {
+            name: {
+                contains: groupName,
+                mode: 'insensitive'
+            },
+            NOT: { members: { some: { userId } }}
+        },
+        include: {
+            book: true,
+            _count: {
+                select: { members: true }
+            }
+        }
+    });
+
+    return groups.map(group => ({
+        id: group.id,
+        name: group.name,
+        startDate: group.startDate,
+        goalDate: group.goalDate,
+        bookIsbn: group.bookIsbn,
+        bookTitle: group.book.title,
+        bookCover: group.book.coverImage,
+        memberCount: group._count.members,
+        createdAt: group.createdAt,
+    }));
+};
