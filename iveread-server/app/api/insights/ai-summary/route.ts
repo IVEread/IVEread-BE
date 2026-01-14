@@ -99,9 +99,18 @@ export async function POST(request: Request) {
             );
         }
 
+        const { searchParams } = new URL(request.url);
+        const refreshQuery = searchParams.get("refresh");
+        const refreshHeader = request.headers.get("x-refresh-ai");
+        const isRefreshRequested =
+            refreshQuery === "true" ||
+            refreshQuery === "1" ||
+            refreshHeader === "true" ||
+            refreshHeader === "1";
+
         const cacheKey = `ai-insight:${userId}`;
         const cached = summaryCache.get(cacheKey);
-        if (cached && cached.expiresAt > Date.now()) {
+        if (!isRefreshRequested && cached && cached.expiresAt > Date.now()) {
             return NextResponse.json({ summary: cached.summary });
         }
 
